@@ -25,6 +25,46 @@
                 <version>${surefire-plugin.version}</version>
                 <!-- Optional: point to a suite file, going with auto-discovery for now -->
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals><goal>shade</goal></goals>
+                        <configuration>
+                            <!-- keep the normal thin jar AND attach the fat jar as -all.jar -->
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>all</shadedClassifierName>
+
+                            <!-- set the entry point -->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>io.github.davidvsaraiva.merlin.monitor.Main</mainClass>
+                                </transformer>
+                                <!-- merge META-INF/services from deps (important for some libs) -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                            </transformers>
+
+                            <!-- avoid signature file conflicts from deps -->
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+
+                            <!-- optional: don't rewrite your pom during shade -->
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -89,6 +129,7 @@
         <maven.compiler.target>17</maven.compiler.target>
 
         <surefire-plugin.version>3.5.0</surefire-plugin.version>
+        <maven-shade.version>3.6.1</maven-shade.version>
 
         <selenium-version>4.35.0</selenium-version>
         <webdrivermanager-version>6.2.0</webdrivermanager-version>

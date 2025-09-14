@@ -1,0 +1,48 @@
+name: Release - build JARs and upload to GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+
+      - name: Set up Java 17 (Temurin)
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Install Chrome (for headless Selenium)
+        uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 # v2.1.0
+        with:
+          install-dependencies: true
+
+      - name: Build (tests on)
+        env:
+          HEADLESS_MODE: "true"
+        run: |
+          mvn -B -ntp -DskipTests=false clean package
+
+      # The created shaded (fat) jar via maven-shade-plugin will be picked up by the glob below.
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2.3.3
+        # Source: https://github.com/softprops/action-gh-release/tags
+        with:
+          name: "${{ github.ref_name }}"
+          tag_name: "${{ github.ref_name }}"
+          generate_release_notes: true
+          files: |
+            target/*.jar
+            CHANGELOG.md

@@ -1,0 +1,40 @@
+name: CI - build & test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        # Source: https://github.com/actions/checkout/tags
+
+      - name: Set up Java 17 (Temurin)
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 # v5.0.0
+        # Source: https://github.com/actions/setup-java/tags
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - name: Install Chrome (for headless Selenium)
+        uses: browser-actions/setup-chrome@b94431e051d1c52dcbe9a7092a4f10f827795416 # v2.1.0
+        # Source: https://github.com/browser-actions/setup-chrome/tags
+        with:
+          install-dependencies: true
+
+      - name: Build & test
+        env:
+          HEADLESS_MODE: "true"
+        run: |
+          mvn -B -ntp -DskipTests=false verify

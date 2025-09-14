@@ -1,0 +1,31 @@
+version: 2
+updates:
+  # Keep GitHub Actions up to date (patch + minor only)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Lisbon"
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "actions/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "browser-actions/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "softprops/*"
+        update-types: ["version-update:semver-major"]
+
+  # Keep Maven deps up to date (patch + minor only)
+  - package-ecosystem: "maven"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:15"
+      timezone: "Europe/Lisbon"
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
