@@ -1,2 +1,42 @@
-# merlin-workshop-monitor
-This application should monitor a concrete URL and notify the user when new workshops are available via email
+# Workshop Monitor
+
+A Java 17 application that monitors when Merlin's has new workshops and notifies you by **email** when:
+
+- New workshop cards appear on the main listing page.
+- New **Loulé** or **Albufeira** workshops appear.
+
+The app stores "seen" items in JSON files to avoid sending duplicate notifications.
+
+The app is designed for a specific Qualtrics form structure and it extracts information according to it.
+
+---
+
+## Build
+
+```bash
+mvn clean package
+```
+---
+
+## Environment variables (SMTP):
+      SMTP_HOST              SMTP server hostname (e.g. smtp.gmail.com)
+      SMTP_PORT              SMTP port (default 587)
+      SMTP_STARTTLS          true|false (default true)
+      SMTP_USERNAME          SMTP username (e.g. your@gmail.com)
+      SMTP_PASSWORD          SMTP password or app password
+      SMTP_FROM              From email address
+      SMTP_TO                To email addresses (delimited by ",")
+      FORM_TO_MONITOR_URL    Form to monitor URL
+      LOG_LEVEL              Log level for the application logs
+
+## Politeness
+
+- Keep long intervals to avoid stressing the site.
+
+---
+
+## License
+
+MIT (adapt as you wish).
+
+---

@@ -1,0 +1,20 @@
+<configuration scan="true">
+
+    <!-- Default log level comes from env/prop LOG_LEVEL, fallback INFO -->
+    <property name="LOG_LEVEL" value="${LOG_LEVEL:-INFO}"/>
+
+    <!-- Console appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg %X{store} %X{runId}%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Reduce Selenium/WebDriverManager noise -->
+    <logger name="org.openqa.selenium" level="WARN"/>
+    <logger name="io.github.bonigarcia" level="WARN"/>
+
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
