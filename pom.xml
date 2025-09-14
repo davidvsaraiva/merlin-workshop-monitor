@@ -134,7 +134,7 @@
         <selenium-version>4.35.0</selenium-version>
         <webdrivermanager-version>6.2.0</webdrivermanager-version>
 
-        <jackson-version>2.19.0</jackson-version>
+        <jackson-version>2.20.0</jackson-version>
         <jakarta-mail-version>2.0.2</jakarta-mail-version>
         <slf4j-version>2.0.17</slf4j-version>
         <logback-version>1.5.18</logback-version>
