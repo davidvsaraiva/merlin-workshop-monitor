@@ -3,7 +3,7 @@ All notable user-facing changes to this project.
 
 ## [Unreleased]
 
-## [0.1.0] - 2025-09-12
+## [0.1.0] - 2025-09-14
 ### Added
 - CLI: `--once` (single run) and `--interval-minutes <N>` (default 360).
 - Scrapes Qualtrics form for each store and emails newly found workshops.
@@ -13,5 +13,5 @@ All notable user-facing changes to this project.
 ### Known
 - Monitored stores are hard-coded (`Loulé`, `Albufeira`).
 
-[Unreleased]: 
-[0.1.0]: 
+[Unreleased]: https://github.com/davidvsaraiva/merlin-workshop-monitor/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/davidvsaraiva/merlin-workshop-monitor/releases/tag/v0.1.0
