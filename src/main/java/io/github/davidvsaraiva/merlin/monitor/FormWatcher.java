@@ -1,7 +1,12 @@
 package io.github.davidvsaraiva.merlin.monitor;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,6 +16,7 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeDriverService;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -18,30 +24,25 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
-
 import static io.github.davidvsaraiva.merlin.monitor.Config.getEnvOrDefault;
 
 public class FormWatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(FormWatcher.class);
 
+    private static final boolean IS_CHROMIUM = Boolean.parseBoolean(getEnvOrDefault("IS_CHROMIUM", "false"));
+    private static final String CHROMIUM_BROWSER_PATH = getEnvOrDefault("CHROMIUM_BROWSER_PATH", null);
+    private static final String CHROMIUM_DRIVER_PATH = getEnvOrDefault("CHROMIUM_DRIVER_PATH", null);
     private static final Duration TIMEOUT = Duration.ofSeconds(20);
 
     private final String formUrl;
 
     public FormWatcher(String formUrl) {
         this.formUrl = formUrl;
-        WebDriverManager.chromedriver().setup();
     }
 
     public List<String> fetchWorkshopsForStore(String storeName) {
-        ChromeOptions opts = new ChromeOptions();
-        opts.addArguments("--no-sandbox", "--disable-gpu");
-        if (Boolean.parseBoolean(getEnvOrDefault("HEADLESS_MODE", "true"))) {
-            opts.addArguments("--headless=new");
-        }
-        WebDriver driver = new ChromeDriver(opts);
+        WebDriver driver = createWebDriver();
         WebDriverWait wait = new WebDriverWait(driver, TIMEOUT);
         try {
             driver.get(formUrl);
@@ -65,6 +66,49 @@ public class FormWatcher {
         } finally {
             driver.quit();
         }
+    }
+
+    private static WebDriver createWebDriver() {
+        WebDriver driver;
+        ChromeOptions opts = new ChromeOptions();
+        opts.addArguments("--no-sandbox", "--disable-gpu");
+        if (Boolean.parseBoolean(getEnvOrDefault("HEADLESS_MODE", "true"))) {
+            opts.addArguments("--headless=new");
+        }
+        if (IS_CHROMIUM) {
+            if(CHROMIUM_BROWSER_PATH != null && CHROMIUM_DRIVER_PATH != null) {
+                opts.setBinary(CHROMIUM_BROWSER_PATH);
+                Path profile = mkTempProfile();
+                opts.addArguments("--user-data-dir=" + profile.toAbsolutePath(), "--disable-dev-shm-usage", "--remote-debugging-port=0", "--no-default-browser-check");
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> rmDir(profile)));
+                ChromeDriverService service = new ChromeDriverService.Builder()
+                        .usingDriverExecutable(new File(CHROMIUM_DRIVER_PATH))
+                        .withLogFile(new File("/tmp/chromedriver.log"))
+                        .build();
+                driver = new ChromeDriver(service, opts);
+            } else {
+                throw new IllegalArgumentException("CHROMIUM_PATH is not set and trying to use chromium");
+            }
+        }  else {
+            driver = new ChromeDriver(opts);
+        }
+        return driver;
+    }
+
+
+    private static Path mkTempProfile() {
+        try {
+            return Files.createTempDirectory("selenium-chrome-profile-");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static void rmDir(Path dir) {
+        try {
+            Files.walk(dir).sorted(Comparator.reverseOrder())
+                    .forEach(p -> { try { Files.delete(p); } catch (Exception ignored) {} });
+        } catch (Exception ignored) {}
     }
 
     private static List<WebElement> findElementsByXpath(WebDriver driver) {

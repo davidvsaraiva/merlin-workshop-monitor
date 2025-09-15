@@ -86,12 +86,6 @@
         </dependency>
 
         <dependency>
-            <groupId>io.github.bonigarcia</groupId>
-            <artifactId>webdrivermanager</artifactId>
-            <version>${webdrivermanager-version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson-version}</version>
@@ -132,7 +126,6 @@
         <maven-shade.version>3.6.1</maven-shade.version>
 
         <selenium-version>4.35.0</selenium-version>
-        <webdrivermanager-version>6.3.2</webdrivermanager-version>
 
         <jackson-version>2.20.0</jackson-version>
         <jakarta-mail-version>2.0.2</jakarta-mail-version>

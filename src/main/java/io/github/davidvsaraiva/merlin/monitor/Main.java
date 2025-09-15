@@ -98,7 +98,7 @@ public class Main {
         for(String storeName : STORES) {
             MDC.put("store", "[" + storeName + "]");
             try {
-                LOG.info("Fetching workshops from");
+                LOG.info("Fetching workshops for store -> {} from url: {}", storeName, FORM_URL);
                 // 1) scrape current list of titles for this store
                 List<String> scrapedTitles = watcher.fetchWorkshopsForStore(storeName);
                 LOG.debug("Scraped {} items", scrapedTitles.size());
@@ -176,11 +176,13 @@ public class Main {
               SMTP_PASSWORD          SMTP password or app password
               SMTP_FROM              From email address
               SMTP_TO                To email address
-              FORM_TO_MONITOR_URL    Form to monitor URL
-              LOG_LEVEL              Log level for the application logs
             
             Environment variable (Selenium):
-              HEADLESS_MODE run browser in headless mode (default: true)
+              HEADLESS_MODE            run browser in headless mode (default: true)
+              FORM_TO_MONITOR_URL      form to monitor URL
+              IS_CHROMIUM              true|false (default false)
+              CHROMIUM_BROWSER_PATH    path to chromium browser
+              CHROMIUM_DRIVER_PATH     path to chromium driver
 
             Logging:
               LOG_LEVEL       Root log level (TRACE, DEBUG, INFO, WARN, ERROR). Default: INFO
