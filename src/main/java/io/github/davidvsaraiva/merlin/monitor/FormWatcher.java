@@ -1,6 +1,10 @@
 package io.github.davidvsaraiva.merlin.monitor;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.TimeoutException;
@@ -14,10 +18,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+import static io.github.davidvsaraiva.merlin.monitor.Config.getEnvOrDefault;
 
 public class FormWatcher {
 
@@ -35,7 +38,7 @@ public class FormWatcher {
     public List<String> fetchWorkshopsForStore(String storeName) {
         ChromeOptions opts = new ChromeOptions();
         opts.addArguments("--no-sandbox", "--disable-gpu");
-        if (Boolean.parseBoolean(EmailNotifier.getEnv("HEADLESS_MODE", "true"))) {
+        if (Boolean.parseBoolean(getEnvOrDefault("HEADLESS_MODE", "true"))) {
             opts.addArguments("--headless=new");
         }
         WebDriver driver = new ChromeDriver(opts);

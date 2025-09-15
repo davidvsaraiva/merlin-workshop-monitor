@@ -1,5 +1,8 @@
 package io.github.davidvsaraiva.merlin.monitor;
 
+import java.util.List;
+import java.util.Properties;
+
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -9,8 +12,8 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
-import java.util.List;
-import java.util.Properties;
+import static ch.qos.logback.core.util.OptionHelper.getEnv;
+import static io.github.davidvsaraiva.merlin.monitor.Config.getEnvOrDefault;
 
 public class EmailNotifier {
 
@@ -40,8 +43,8 @@ public class EmailNotifier {
 
     public static EmailNotifier fromEnv() {
         String host = System.getenv("SMTP_HOST");
-        int port = Integer.parseInt(getEnv("SMTP_PORT", "587"));
-        boolean starttls = Boolean.parseBoolean(getEnv("SMTP_STARTTLS", "true"));
+        int port = Integer.parseInt(getEnvOrDefault("SMTP_PORT", "587"));
+        boolean starttls = Boolean.parseBoolean(getEnvOrDefault("SMTP_STARTTLS", "true"));
         String user = getEnv("SMTP_USERNAME");
         String password = getEnv("SMTP_PASSWORD");
         String from = getEnv("SMTP_FROM");
@@ -58,18 +61,5 @@ public class EmailNotifier {
             message.setText(body);
             Transport.send(message);
         }
-    }
-
-    static String getEnv(String key, String defaultValue) {
-        String val = System.getenv(key);
-        return val != null ? val : defaultValue;
-    }
-
-    private static String getEnv(String key) {
-        String val = System.getenv(key);
-        if (val == null) {
-            throw new IllegalArgumentException(String.format("Missing environment variable '%s'", key));
-        }
-        return val;
     }
 }
