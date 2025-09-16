@@ -21,6 +21,9 @@ mvn clean package
 ## Run
 
 ```bash
+# default -> scheduled to run every 6 hours
+java -jar merlin-workshop-monitor-X.X.X-all.jar
+# or
 java -jar merlin-workshop-monitor-X.X.X-all.jar --once
 # or
 java -jar merlin-workshop-monitor-X.X.X-all.jar --interval-minutes 120

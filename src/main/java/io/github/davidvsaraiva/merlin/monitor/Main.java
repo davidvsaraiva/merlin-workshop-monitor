@@ -137,7 +137,7 @@ public class Main {
 
             try {
                 notifier.send(subject, body);
-                LOG.info("Email sent (" + newOnes.size() + " new).");
+                LOG.info(newOnes.size() + " new workshops found).");
             } catch (Exception e) {
                 LOG.error("Email failed");
             }

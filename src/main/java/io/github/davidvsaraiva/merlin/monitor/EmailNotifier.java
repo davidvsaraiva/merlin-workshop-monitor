@@ -3,6 +3,9 @@ package io.github.davidvsaraiva.merlin.monitor;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.mail.Authenticator;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
@@ -16,6 +19,8 @@ import static ch.qos.logback.core.util.OptionHelper.getEnv;
 import static io.github.davidvsaraiva.merlin.monitor.Config.getEnvOrDefault;
 
 public class EmailNotifier {
+
+    private static final Logger LOG = LoggerFactory.getLogger(EmailNotifier.class);
 
     private static final String DELIMITER = ",";
 
@@ -60,6 +65,7 @@ public class EmailNotifier {
             message.setSubject(subject);
             message.setText(body);
             Transport.send(message);
+            LOG.info("Sent email to " + to);
         }
     }
 }

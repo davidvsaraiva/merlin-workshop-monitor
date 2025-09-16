@@ -38,3 +38,11 @@ jobs:
           HEADLESS_MODE: "true"
         run: |
           mvn -B -ntp -DskipTests=false verify
+      - name: Upload snapshot JARs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4.6.2
+        # Source: https://github.com/actions/upload-artifact/tags
+        with:
+          name: snapshot
+          path: target/*.jar
+          if-no-files-found: error
+          retention-days: 14

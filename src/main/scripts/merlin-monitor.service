@@ -1,0 +1,21 @@
+[Unit]
+Description=Merlin Monitor
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=merlin-monitor
+Group=merlin-monitor
+EnvironmentFile=/etc/merlin-monitor/merlin-monitor.env
+WorkingDirectory=/opt/merlin-monitor
+ExecStart=/usr/bin/java -DLOG_LEVEL=INFO -Dwebdriver.chrome.driver=/usr/bin/chromedriver -jar /opt/merlin-monitor/merlin-monitor-all.jar
+Restart=on-failure
+
+# Hardening (nice to have)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
