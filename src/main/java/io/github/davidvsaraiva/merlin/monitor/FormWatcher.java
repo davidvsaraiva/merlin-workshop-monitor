@@ -51,6 +51,7 @@ public class FormWatcher {
             selectStore(storeName, dropdown);
             List<WebElement> labelNodes = collectAllWorkshops(wait, driver);
             if (labelNodes.isEmpty()) {
+                LOG.debug("Not able to to read workshops list, attempting to read workshops from XPath...");
                 labelNodes = findElementsByXpath(driver);
             }
             LOG.debug("Found {} workshops for store {}", labelNodes.size(), storeName);
@@ -113,7 +114,6 @@ public class FormWatcher {
 
     private static List<WebElement> findElementsByXpath(WebDriver driver) {
         List<WebElement> labelNodes;
-        LOG.debug("Not able to to read workshops list, attempting to read workshops from XPath...");
         By WORKSHOP_LABELS = By.xpath(
                 "//ul[contains(@class,'ChoiceStructure')]" +
                 "[not(ancestor-or-self::*[@aria-hidden='true' or contains(@style,'display: none') or contains(@style,'visibility: hidden')])]" +
