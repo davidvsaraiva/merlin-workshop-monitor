@@ -125,12 +125,12 @@
         <surefire-plugin.version>3.5.4</surefire-plugin.version>
         <maven-shade.version>3.6.1</maven-shade.version>
 
-        <selenium-version>4.35.0</selenium-version>
+        <selenium-version>4.36.0</selenium-version>
 
         <jackson-version>2.20.0</jackson-version>
         <jakarta-mail-version>2.0.2</jakarta-mail-version>
         <slf4j-version>2.0.17</slf4j-version>
-        <logback-version>1.5.18</logback-version>
+        <logback-version>1.5.19</logback-version>
 
         <testng.version>7.11.0</testng.version>
     </properties>
