@@ -12,8 +12,6 @@ updates:
     ignore:
       - dependency-name: "actions/*"
         update-types: ["version-update:semver-major"]
-      - dependency-name: "browser-actions/*"
-        update-types: ["version-update:semver-major"]
       - dependency-name: "softprops/*"
         update-types: ["version-update:semver-major"]
 

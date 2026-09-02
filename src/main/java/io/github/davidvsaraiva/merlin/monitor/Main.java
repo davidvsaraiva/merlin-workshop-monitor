@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -20,10 +19,8 @@ public class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    private static final String FORM_URL = System.getenv("FORM_TO_MONITOR_URL");
+    private static final String SITEMAP_URL = "https://www.leroymerlin.pt/sitemap-idee-projet1.xml";
     private static final Path STORE_PATH = Path.of(System.getProperty("user.home"), "workshops.json");
-
-    private static final List<String> STORES = List.of("Loulé", "Albufeira");
 
     public static void main(String[] args) {
         if (Arrays.asList(args).contains("--help")) {
@@ -32,18 +29,18 @@ public class Main {
         }
 
         boolean once = Arrays.asList(args).contains("--once");
-        long minutesInterval = parseInterval(args, 360);
 
         if (once) {
             // just run once and exit
             safeRun("Single run (--once) started", "Single run (--once) finished");
             return ; // exit
         }
+        long minutesInterval = parseInterval(args, 60);
         schedulePeriodicRun(minutesInterval);
     }
 
     private static void schedulePeriodicRun(long minutesInterval) {
-        LOG.info("Starting monitor. Stores={}, intervalMinutes={}",STORES, minutesInterval);
+        LOG.info("Starting monitor. intervalMinutes={}", minutesInterval);
         // otherwise, schedule periodically
         var exec = Executors.newSingleThreadScheduledExecutor();
         addShutdownHookForScheduler(exec);
@@ -88,63 +85,75 @@ public class Main {
 
     private static void runOnce() throws Exception {
         var repo = new WorkshopsRepository(STORE_PATH);
-        var watcher = new FormWatcher(FORM_URL);
+        var watcher = new SitemapWatcher(SITEMAP_URL);
         var notifier = EmailNotifier.fromEnv();
 
+        // 1) load previously known workshops
         var currentState = repo.loadOrCreate();
-        Map<String, WorkshopsRepository.StoreData> currentStatePerStore = currentState.stores();
-        List<String> newOnes = new ArrayList<>();
+        boolean isFirstRun = currentState.lastUpdated() == null;
+        Map<String, KnownWorkshop> knownWorkshops = currentState.workshops();
 
-        for(String storeName : STORES) {
-            MDC.put("store", "[" + storeName + "]");
-            try {
-                LOG.info("Fetching workshops for store -> {} from url: {}", storeName, FORM_URL);
-                // 1) scrape current list of titles for this store
-                List<String> scrapedTitles = watcher.fetchWorkshopsForStore(storeName);
-                LOG.debug("Scraped {} items", scrapedTitles.size());
+        // 2) fetch the current workshop sitemap
+        LOG.info("Fetching workshop sitemap from {}", SITEMAP_URL);
+        Map<String, SitemapWorkshop> scrapedWorkshops = watcher.fetchWorkshops();
+        LOG.debug("Found {} workshop entries", scrapedWorkshops.size());
 
-                // 2) ensure a StoreData bucket exists
-                var currentStoreData = currentStatePerStore.computeIfAbsent(
-                        storeName,
-                        s -> new WorkshopsRepository.StoreData(new LinkedHashMap<>(), null)
-                );
-
-                // 3) diff: add any new titles
-                var byTitle = currentStoreData.getWorkshops();
-                for(String title: scrapedTitles) {
-                    if(!byTitle.containsKey(title)) {
-                        byTitle.put(title, new WorkshopEntry(title)); // firstSeen = Instant.now()
-                        newOnes.add("[" + storeName + "] " + title);
-                    }
-                }
-                // 4) update lastChecked for this store
-                currentStoreData.setLastChecked(Instant.now().toString());
-            } finally {
-                MDC.remove("store");
+        // 3) diff: add any new workshops
+        List<KnownWorkshop> newOnes = new ArrayList<>();
+        for (Map.Entry<String, SitemapWorkshop> scraped : scrapedWorkshops.entrySet()) {
+            String url = scraped.getKey();
+            if (!knownWorkshops.containsKey(url)) {
+                SitemapWorkshop info = scraped.getValue();
+                KnownWorkshop entry = new KnownWorkshop(url, info.title(), info.imageUrl());
+                knownWorkshops.put(url, entry);
+                newOnes.add(entry);
             }
-
         }
-        // 5) Save new state with refreshed lastUpdated
-        WorkshopState newState = new WorkshopState(currentStatePerStore, Instant.now().toString());
+
+        // 4) save new state with refreshed lastUpdated
+        WorkshopState newState = new WorkshopState(knownWorkshops, Instant.now().toString());
         repo.save(newState);
 
-        // 6) Notify if anything new
-        if(!newOnes.isEmpty()) {
+        // 5) notify if anything new (skip on first run, see isFirstRun above)
+        if (isFirstRun) {
+            // Seed state from whatever currently exists rather than emailing every
+            // pre-existing workshop as "new" on first deployment.
+            LOG.info("First run - seeded state with {} known workshops, no notification sent",
+                    knownWorkshops.size());
+        } else if (!newOnes.isEmpty()) {
             LOG.info("Detected {} new workshops", newOnes.size());
             String subject = "Novos workshops (" + newOnes.size() + ")";
-            String body = String.join("\n", newOnes);
-            body = body.concat("\nCheck form here: " + FORM_URL);
+            String body = buildEmailBody(newOnes);
 
             try {
                 notifier.send(subject, body);
-                LOG.info(newOnes.size() + " new workshops found).");
+                LOG.info("{} new workshops found.", newOnes.size());
             } catch (Exception e) {
-                LOG.error("Email failed");
+                LOG.error("Email failed", e);
             }
         } else {
             LOG.info("No new workshops");
         }
+    }
 
+    private static String buildEmailBody(List<KnownWorkshop> newOnes) {
+        StringBuilder body = new StringBuilder("<html><body>");
+        for (KnownWorkshop entry : newOnes) {
+            body.append("<p><strong>").append(escapeHtml(entry.title())).append("</strong><br>")
+                    .append("<a href=\"").append(entry.url()).append("\">").append(entry.url()).append("</a>");
+            if (entry.imageUrl() != null) {
+                body.append("<br><img src=\"").append(entry.imageUrl()).append("\" width=\"300\">");
+            }
+            body.append("</p>");
+        }
+        return body.append("</body></html>").toString();
+    }
+
+    private static String escapeHtml(String value) {
+        return value.replace("&", "&amp;")
+                .replace("<", "&lt;")
+                .replace(">", "&gt;")
+                .replace("\"", "&quot;");
     }
 
     private static long parseInterval(String[] args, long defaultMinutes) {
@@ -158,14 +167,14 @@ public class Main {
 
     private static void printHelp() {
         System.out.println("""
-            Workshop Monitor - Form Watcher
+            Workshop Monitor - Sitemap Watcher
 
             Usage:
               java -jar workshop-monitor.jar [options]
 
             Options:
               --once                   Run a single check and exit (cron mode)
-              --interval-minutes <N>   Set interval between checks (default: 360 = 6 hours)
+              --interval-minutes <N>   Set interval between checks (default: 60 = 1 hour)
               --help                   Show this help message
 
             Environment variables (SMTP):
@@ -176,23 +185,16 @@ public class Main {
               SMTP_PASSWORD          SMTP password or app password
               SMTP_FROM              From email address
               SMTP_TO                To email address
-            
-            Environment variable (Selenium):
-              HEADLESS_MODE            run browser in headless mode (default: true)
-              FORM_TO_MONITOR_URL      form to monitor URL
-              IS_CHROMIUM              true|false (default false)
-              CHROMIUM_BROWSER_PATH    path to chromium browser
-              CHROMIUM_DRIVER_PATH     path to chromium driver
 
             Logging:
               LOG_LEVEL       Root log level (TRACE, DEBUG, INFO, WARN, ERROR). Default: INFO
 
             Data:
-              workshops.json  Stored in your home directory (~). Keeps track of seen workshops
-                               and acts as the feed for an Android app or other clients.
+              workshops.json  Stored in your home directory (~). Keeps track of seen workshop URLs.
 
-            Monitored stores:
-              Loulé, Albufeira
+            Source:
+              Leroy Merlin's public workshops sitemap (sitemap-idee-projet1.xml). Reports any
+              newly-added workshop page, regardless of store.
 
             Examples:
               java -jar workshop-monitor.jar --interval-minutes 120

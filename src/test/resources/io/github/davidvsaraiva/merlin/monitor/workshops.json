@@ -1,15 +1,11 @@
 {
   "lastUpdated": "2025-08-16T16:12:45Z",
-  "stores": {
-    "Loulé": {
-      "workshops": {
-        "Como aplicar papel de parede. Dia 27/09, 10h": { "title": "...", "firstSeen": "..." }
-      }
-    },
-    "Albufeira": {
-      "workshops": {
-        "Iniciação à bricolage": { "title": "...", "firstSeen": "..." }
-      }
+  "workshops": {
+    "https://www.leroymerlin.pt/bricolage/workshops/workshop-como-tratar-de-um-bonsai.html": {
+      "url": "https://www.leroymerlin.pt/bricolage/workshops/workshop-como-tratar-de-um-bonsai.html",
+      "title": "Workshop Como Tratar De Um Bonsai",
+      "imageUrl": "https://media.adeo.com/media/1111111/media.jpeg",
+      "firstSeen": "2025-08-16T16:12:45Z"
     }
   }
 }

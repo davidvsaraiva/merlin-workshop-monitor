@@ -9,12 +9,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.Map;
 
 public class WorkshopsRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkshopsRepository.class);
-
 
     private final Path path;
     private final ObjectMapper mapper;
@@ -33,32 +31,7 @@ public class WorkshopsRepository {
         return mapper.readValue(Files.readString(path), WorkshopState.class);
     }
 
-    public void save (WorkshopState state) throws IOException {
+    public void save(WorkshopState state) throws IOException {
         mapper.writerWithDefaultPrettyPrinter().writeValue(path.toFile(), state);
-    }
-
-    public static class StoreData {
-        private Map<String, WorkshopEntry> workshops;
-        private String lastChecked;
-
-        public StoreData() {
-        }
-
-        public StoreData(Map<String, WorkshopEntry> workshops, String lastChecked) {
-            this.workshops = workshops;
-            this.lastChecked = lastChecked;
-        }
-
-        public Map<String, WorkshopEntry> getWorkshops() {
-            return workshops;
-        }
-
-        public String getLastChecked() {
-            return lastChecked;
-        }
-
-        public void setLastChecked(String lastChecked) {
-            this.lastChecked = lastChecked;
-        }
     }
 }
