@@ -15,7 +15,7 @@ import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 
-import static ch.qos.logback.core.util.OptionHelper.getEnv;
+import static io.github.davidvsaraiva.merlin.monitor.Config.getEnv;
 import static io.github.davidvsaraiva.merlin.monitor.Config.getEnvOrDefault;
 
 public class EmailNotifier {
@@ -47,7 +47,7 @@ public class EmailNotifier {
     }
 
     public static EmailNotifier fromEnv() {
-        String host = System.getenv("SMTP_HOST");
+        String host = getEnv("SMTP_HOST");
         int port = Integer.parseInt(getEnvOrDefault("SMTP_PORT", "587"));
         boolean starttls = Boolean.parseBoolean(getEnvOrDefault("SMTP_STARTTLS", "true"));
         String user = getEnv("SMTP_USERNAME");
