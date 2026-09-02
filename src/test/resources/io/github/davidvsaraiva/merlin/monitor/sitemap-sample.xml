@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    <url>
+        <loc>https://www.leroymerlin.pt/bricolage/</loc>
+        <lastmod>2026-09-01</lastmod>
+    </url>
+    <url>
+        <loc>https://www.leroymerlin.pt/bricolage/workshops/</loc>
+        <lastmod>2026-09-01</lastmod>
+    </url>
+    <url>
+        <loc>https://www.leroymerlin.pt/bricolage/workshops/workshop-como-tratar-de-um-bonsai.html</loc>
+        <lastmod>2026-09-01</lastmod>
+        <image:image>
+            <image:loc>https://media.adeo.com/media/1111111/media.jpeg</image:loc>
+            <image:title>WORKSHOP: Como tratar de um bonsai</image:title>
+        </image:image>
+    </url>
+    <url>
+        <loc>https://www.leroymerlin.pt/bricolage/workshops/workshop-como-renovar-a-iluminacao-com-lexman.html</loc>
+        <lastmod>2026-09-01</lastmod>
+    </url>
+    <url>
+        <loc>https://www.leroymerlin.pt/bricolage/aprenda-mais/como-escolher-tubos-de-canalizacao-multicamadas.html</loc>
+        <lastmod>2026-09-01</lastmod>
+    </url>
+</urlset>

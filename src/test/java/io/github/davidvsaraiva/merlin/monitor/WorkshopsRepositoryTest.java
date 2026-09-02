@@ -18,7 +18,9 @@ public class WorkshopsRepositoryTest {
         Path path = Path.of(url.toURI());
         WorkshopsRepository repository = new WorkshopsRepository(path);
         WorkshopState workshopState = repository.loadOrCreate();
-        assertEquals(workshopState.stores().size(), 2);
-        assertEquals(workshopState.stores().get("Loulé").getWorkshops().size(), 1);
+        assertEquals(workshopState.workshops().size(), 1);
+
+        String knownUrl = "https://www.leroymerlin.pt/bricolage/workshops/workshop-como-tratar-de-um-bonsai.html";
+        assertEquals(workshopState.workshops().get(knownUrl).title(), "Workshop Como Tratar De Um Bonsai");
     }
 }

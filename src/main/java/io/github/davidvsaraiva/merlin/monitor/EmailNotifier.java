@@ -57,13 +57,13 @@ public class EmailNotifier {
         return new EmailNotifier(host, port, starttls, user, password, from, to);
     }
 
-    public void send(String subject, String body) throws MessagingException {
+    public void send(String subject, String htmlBody) throws MessagingException {
         for(String to: destinations) {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
             message.setSubject(subject);
-            message.setText(body);
+            message.setContent(htmlBody, "text/html; charset=UTF-8");
             Transport.send(message);
             LOG.info("Sent email to " + to);
         }

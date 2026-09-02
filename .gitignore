@@ -1,6 +1,9 @@
 **/*.iml
 **/.idea
 **/target/
+/CLAUDE.md
+/src/docs/MIGRATION_PLAN.md
+/src/docs/RELEASE_PROCESS.md
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

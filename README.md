@@ -1,12 +1,10 @@
 # Workshop Monitor
 
-A Java 17 application that monitors when Merlin's has new workshops and notifies you by **email** when:
+A Java 17 application that monitors when Merlin's has new workshops and notifies you by **email** when a new workshop is added.
 
-- New **Loulé** or **Albufeira** workshops appear.
+The app stores "seen" workshop URLs in a JSON file in the filesystem to avoid sending duplicate notifications.
 
-The app stores "seen" items in JSON file in the filesystem to avoid sending duplicate notifications.
-
-The app is designed for a specific Qualtrics form structure and it extracts information according to it.
+The app reads Leroy Merlin's public workshops sitemap (`sitemap-idee-projet1.xml`) to detect newly-added workshop pages — no browser automation involved.
 
 The app can run in single or scheduled mode. The initial trigger was to run this in scheduled mode in a lower power consumption device like a Raspberry Pi.
 
@@ -21,7 +19,7 @@ mvn clean package
 ## Run
 
 ```bash
-# default -> scheduled to run every 6 hours
+# default -> scheduled to run every hour
 java -jar merlin-workshop-monitor-X.X.X-all.jar
 # or
 java -jar merlin-workshop-monitor-X.X.X-all.jar --once
@@ -38,15 +36,12 @@ java -jar merlin-workshop-monitor-X.X.X-all.jar --interval-minutes 120
       SMTP_PASSWORD            SMTP password or app password
       SMTP_FROM                From email address
       SMTP_TO                  To email addresses (delimited by ",")
-      FORM_TO_MONITOR_URL      Form to monitor URL
       LOG_LEVEL                Log level for the application logs
-      IS_CHROMIUM              true|false (default false)
-      CHROMIUM_BROWSER_PATH    path to chromium browser
-      CHROMIUM_DRIVER_PATH     path to chromium driver
 
 ## Politeness
 
-- Keep long intervals to avoid stressing the site.
+- Keep reasonable intervals to avoid stressing the site, even though the sitemap is a
+  lightweight, publicly-intended endpoint.
 
 ---
 
