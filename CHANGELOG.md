@@ -2,6 +2,13 @@
 All notable user-facing changes to this project.
 
 ## [Unreleased]
+### Added
+- Optional heartbeat ping (`HEALTHCHECK_URL`) sent after every successful run, so an
+  external dead-man's-switch service (e.g. healthchecks.io) can alert if the app/Pi goes
+  silent — previously there was no way to distinguish "no new workshops" from "the app/Pi
+  stopped working."
+- In scheduled mode, each run now logs the approximate time of the next run (not shown for
+  `--once`, since there isn't one).
 
 ## [1.0.0] - 2026-09-02
 ### Changed

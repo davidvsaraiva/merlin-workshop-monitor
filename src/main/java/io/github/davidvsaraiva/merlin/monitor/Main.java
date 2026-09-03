@@ -2,6 +2,8 @@ package io.github.davidvsaraiva.merlin.monitor;
 
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,7 +34,7 @@ public class Main {
 
         if (once) {
             // just run once and exit
-            safeRun("Single run (--once) started", "Single run (--once) finished");
+            safeRun("Single run (--once) started", "Single run (--once) finished", null);
             return ; // exit
         }
         long minutesInterval = parseInterval(args, 60);
@@ -44,7 +46,7 @@ public class Main {
         // otherwise, schedule periodically
         var exec = Executors.newSingleThreadScheduledExecutor();
         addShutdownHookForScheduler(exec);
-        Runnable task = () -> safeRun("Scheduled run start",  "Scheduled run finished");
+        Runnable task = () -> safeRun("Scheduled run start", "Scheduled run finished", minutesInterval);
         exec.scheduleWithFixedDelay(task, 0, minutesInterval, TimeUnit.MINUTES);
     }
 
@@ -69,16 +71,22 @@ public class Main {
         }));
     }
 
-    private static void safeRun(String runStartMessage, String runFinishMessage) {
+    // minutesInterval is null for a one-off (--once) run, which has no "next run" to report.
+    private static void safeRun(String runStartMessage, String runFinishMessage, Long minutesInterval) {
         String runId = UUID.randomUUID().toString().substring(0, 8);
         MDC.put("runId", runId);
         try {
             LOG.info(runStartMessage);
             runOnce();
             LOG.info(runFinishMessage);
+            HealthcheckNotifier.fromEnv().pingSuccess();
         } catch (Exception e) {
             LOG.error("Run failed", e);
         } finally {
+            if (minutesInterval != null) {
+                Instant nextRun = Instant.now().plus(minutesInterval, ChronoUnit.MINUTES);
+                LOG.info("Next scheduled run at approximately {}", nextRun.atZone(ZoneId.systemDefault()));
+            }
             MDC.clear();
         }
     }
@@ -188,6 +196,11 @@ public class Main {
 
             Logging:
               LOG_LEVEL       Root log level (TRACE, DEBUG, INFO, WARN, ERROR). Default: INFO
+
+            Environment variable (heartbeat, optional):
+              HEALTHCHECK_URL   Ping URL (e.g. from healthchecks.io) hit after every
+                                successful run, so an external service can alert if the
+                                Pi/app goes silent. Unset = no heartbeat sent.
 
             Data:
               workshops.json  Stored in your home directory (~). Keeps track of seen workshop URLs.
