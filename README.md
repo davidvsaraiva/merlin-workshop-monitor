@@ -37,6 +37,9 @@ java -jar merlin-workshop-monitor-X.X.X-all.jar --interval-minutes 120
       SMTP_FROM                From email address
       SMTP_TO                  To email addresses (delimited by ",")
       LOG_LEVEL                Log level for the application logs
+      HEALTHCHECK_URL          Optional. Ping URL (e.g. from healthchecks.io) hit after
+                               every successful run, so an external service can alert you
+                               if the app/Pi goes silent. Unset = no heartbeat sent.
 
 ## Politeness
 
